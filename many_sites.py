@@ -174,7 +174,7 @@ def main():
              "series": [(label, color, roll[label]) for label, color in shown.items()]},
             {"title": "Cost per success (illustrative units)",
              "ylabel": f"Cost per success (rolling {args.window:,})", "ylim": (0, 50),
-             "ref": ("Oracle", [c / r for c, r in zip(spend[oracle], roll[oracle])]),
+             "ref": ("Oracle", [c / max(1e-9, r) for c, r in zip(spend[oracle], roll[oracle])]),
              "series": [(label, color, [c / max(1e-9, r) for c, r in zip(spend[label], roll[label])])
                         for label, color in shown.items()]},
         ]
