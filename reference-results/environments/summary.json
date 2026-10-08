@@ -8,6 +8,15 @@
     0.75,
     0.6
   ],
+  "triggered_retest": {
+    "window": 100,
+    "threshold": 0.7,
+    "monitor": "Full trailing window of post-commit outcomes; cleared at each re-test",
+    "trials_per_arm": {
+      "three_arms": 30,
+      "knobs": 10
+    }
+  },
   "adversarial": {
     "strength": 0.6,
     "usage_memory": 0.01
@@ -57,11 +66,11 @@
         "max_success_rate": 0.9085,
         "mean_cost_per_success": 1.1331399647116418
       },
-      "grid_retune": {
-        "mean_success_rate": 0.87509,
-        "min_success_rate": 0.806,
-        "max_success_rate": 0.9015,
-        "mean_cost_per_success": 1.1438691013578963
+      "triggered_retest": {
+        "mean_success_rate": 0.8910899999999999,
+        "min_success_rate": 0.8465,
+        "max_success_rate": 0.9085,
+        "mean_cost_per_success": 1.1223608337836524
       },
       "epsilon_greedy": {
         "mean_success_rate": 0.8802599999999999,
@@ -107,11 +116,11 @@
         "max_success_rate": 0.7585,
         "mean_cost_per_success": 1.5438933574464277
       },
-      "grid_retune": {
-        "mean_success_rate": 0.79887,
-        "min_success_rate": 0.7255,
-        "max_success_rate": 0.829,
-        "mean_cost_per_success": 1.253067044840108
+      "triggered_retest": {
+        "mean_success_rate": 0.78439,
+        "min_success_rate": 0.7515,
+        "max_success_rate": 0.8135,
+        "mean_cost_per_success": 1.2752587291171908
       },
       "epsilon_greedy": {
         "mean_success_rate": 0.71134,
@@ -157,11 +166,11 @@
         "max_success_rate": 0.7585,
         "mean_cost_per_success": 1.5412845326802544
       },
-      "grid_retune": {
-        "mean_success_rate": 0.78664,
-        "min_success_rate": 0.6385,
-        "max_success_rate": 0.8355,
-        "mean_cost_per_success": 1.2754857225939693
+      "triggered_retest": {
+        "mean_success_rate": 0.80687,
+        "min_success_rate": 0.774,
+        "max_success_rate": 0.8325,
+        "mean_cost_per_success": 1.2397344984823089
       },
       "epsilon_greedy": {
         "mean_success_rate": 0.7326600000000001,
@@ -207,11 +216,11 @@
         "max_success_rate": 0.4135,
         "mean_cost_per_success": 2.632056759227772
       },
-      "grid_retune": {
-        "mean_success_rate": 0.38756999999999997,
-        "min_success_rate": 0.3505,
-        "max_success_rate": 0.4125,
-        "mean_cost_per_success": 2.584034462634642
+      "triggered_retest": {
+        "mean_success_rate": 0.5742499999999999,
+        "min_success_rate": 0.548,
+        "max_success_rate": 0.5935,
+        "mean_cost_per_success": 1.7420362693898352
       },
       "epsilon_greedy": {
         "mean_success_rate": 0.54243,
@@ -257,11 +266,11 @@
         "max_success_rate": 0.812,
         "mean_cost_per_success": 29.849406547834327
       },
-      "grid_retune": {
-        "mean_success_rate": 0.67214,
-        "min_success_rate": 0.5285,
-        "max_success_rate": 0.715,
-        "mean_cost_per_success": 34.788134449609224
+      "triggered_retest": {
+        "mean_success_rate": 0.67771,
+        "min_success_rate": 0.5455,
+        "max_success_rate": 0.812,
+        "mean_cost_per_success": 33.861373908143655
       },
       "random_search": {
         "mean_success_rate": 0.62743,

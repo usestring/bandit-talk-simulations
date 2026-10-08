@@ -24,11 +24,14 @@ import itertools
 import json
 import math
 import random
+from collections import deque
 from pathlib import Path
 
 BASE = [0.90, 0.75, 0.60]
 ADV_STRENGTH = 0.6
 ADV_MEMORY = 0.01
+RETEST_WINDOW = 100
+RETEST_THRESHOLD = 0.70
 
 FETCH = {"http": -1.5, "tls": 1.2, "browser": 0.6}
 PROXY = {"datacenter": -1.0, "resi-us": 1.0, "resi-eu": 0.3, "mobile": 1.2}
@@ -47,16 +50,16 @@ TITLES = {
     "shift": "Abrupt shift: A drops 0.90 -> 0.40 at the midpoint (3 configs)",
     "drift": "Gradual drift: A decays, C improves (3 configs)",
     "adversarial": "Adversarial: heavily used configs get blocked more (3 configs)",
-    "knobs": "36 knob combinations: TLS client gets flagged at the midpoint",
+    "knobs": "36 knob combinations: Cheaper method starts failing at the midpoint",
 }
-POLICIES = ["round_robin", "grid_search", "grid_retune", "random_search",
+POLICIES = ["round_robin", "grid_search", "triggered_retest", "random_search",
             "epsilon_greedy", "ucb1", "exp3", "thompson", "thompson_decay", "thompson_pruned"]
-CHART_POLICIES = ["round_robin", "grid_search", "grid_retune", "random_search",
+CHART_POLICIES = ["round_robin", "grid_search", "triggered_retest", "random_search",
                   "ucb1", "exp3", "thompson_decay", "thompson_pruned"]
 LABELS = {
     "round_robin": "Round-robin",
     "grid_search": "Grid search, then commit",
-    "grid_retune": "Grid search, re-run every 1,000",
+    "triggered_retest": "Triggered re-test (<70% / 100)",
     "random_search": "Random search, then commit",
     "epsilon_greedy": "Epsilon-greedy (0.1)",
     "ucb1": "UCB1",
@@ -65,15 +68,16 @@ LABELS = {
     "thompson_decay": "Thompson + forgetting (0.995)",
     "thompson_pruned": f"Thompson + forgetting, pruned to {len(PRUNED_ARMS)} arms",
 }
-COLORS = {"round_robin": "#9aa0a6", "grid_search": "#d93025", "grid_retune": "#f28b82",
+COLORS = {"round_robin": "#9aa0a6", "grid_search": "#d93025", "triggered_retest": "#f28b82",
           "random_search": "#e37400", "epsilon_greedy": "#f9ab00", "ucb1": "#1a73e8",
           "exp3": "#00897b", "thompson": "#a142f4", "thompson_decay": "#188038",
           "thompson_pruned": "#0b5394"}
 
 
 class Environment:
-    def __init__(self, kind, n):
+    def __init__(self, kind, n, shift_at=None):
         self.kind, self.n = kind, n
+        self.shift_at = n // 2 if shift_at is None else shift_at
         self.k = len(KNOB_ARMS) if kind == "knobs" else 3
         self.usage = [1 / 3] * 3
 
@@ -81,7 +85,7 @@ class Environment:
         if self.kind == "stationary":
             return list(BASE)
         if self.kind == "shift":
-            return list(BASE) if t < self.n // 2 else [0.40, 0.75, 0.60]
+            return list(BASE) if t < self.shift_at else [0.40, 0.75, 0.60]
         if self.kind == "drift":
             start, end = self.n // 4, 3 * self.n // 4
             x = min(1.0, max(0.0, (t - start) / (end - start)))
@@ -118,7 +122,10 @@ class Environment:
 
 
 class Policy:
-    def __init__(self, name, k, n, rng, epsilon=0.1, decay=0.995, gamma=0.1):
+    def __init__(self, name, k, n, rng, epsilon=0.1, decay=0.995, gamma=0.1,
+                 retest_window=RETEST_WINDOW, retest_threshold=RETEST_THRESHOLD):
+        if retest_window < 1 or not 0 <= retest_threshold <= 1:
+            raise ValueError("Re-test window must be positive and threshold between 0 and 1")
         self.name, self.k, self.n, self.rng = name, k, n, rng
         self.epsilon, self.decay, self.gamma = epsilon, decay, gamma
         self.counts, self.rewards = [0] * k, [0.0] * k
@@ -132,17 +139,26 @@ class Policy:
         self.allowed = PRUNED_ARMS if name == "thompson_pruned" else range(k)
         self.phase_start, self.committed = 0, None
         self.phase_counts, self.phase_rewards = [0] * k, [0.0] * k
+        self.retest_threshold = retest_threshold
+        self.recent_committed = deque(maxlen=retest_window)
+        self.retests = 0
+        self.test_requests = 0
 
     def select(self, t):
         if self.name == "round_robin":
             return t % self.k
-        if self.name in ("grid_search", "grid_retune", "random_search"):
-            if self.name == "grid_retune" and t > 0 and t % 1000 == 0:
+        if self.name in ("grid_search", "triggered_retest", "random_search"):
+            if (self.name == "triggered_retest" and self.committed is not None
+                    and len(self.recent_committed) == self.recent_committed.maxlen
+                    and sum(self.recent_committed) / len(self.recent_committed) < self.retest_threshold):
                 self.phase_start, self.committed = t, None
                 self.phase_counts, self.phase_rewards = [0] * self.k, [0.0] * self.k
+                self.recent_committed.clear()
+                self.retests += 1
             step = t - self.phase_start
             budget = self.trials * len(self.candidates)
             if step < budget:
+                self.test_requests += 1
                 return self.candidates[step % len(self.candidates)]
             if self.committed is None:
                 self.committed = max(self.candidates, key=lambda a:
@@ -175,6 +191,8 @@ class Policy:
         self.rewards[arm] += reward
         self.phase_counts[arm] += 1
         self.phase_rewards[arm] += reward
+        if self.name == "triggered_retest" and self.committed is not None:
+            self.recent_committed.append(reward)
         if self.name == "exp3":
             self.log_w[arm] += self.gamma * (reward / self.probs[arm]) / self.k
         if self.name in ("thompson_decay", "thompson_pruned"):
@@ -185,9 +203,9 @@ class Policy:
             self.beta[arm] += 1 - reward
 
 
-def simulate(policy_name, kind, n, seed):
+def simulate_with_policy(policy_name, kind, n, seed, shift_at=None):
     outcomes, choices = random.Random(seed), random.Random(seed + 1_000_003)
-    env = Environment(kind, n)
+    env = Environment(kind, n, shift_at=shift_at)
     policy = Policy(policy_name, env.k, n, choices)
     arms, wins, cost = [], [], 0.0
     for t in range(n):
@@ -199,6 +217,11 @@ def simulate(policy_name, kind, n, seed):
         cost += env.cost(arm)
         arms.append(arm)
         wins.append(reward)
+    return env, policy, arms, wins, cost
+
+
+def simulate(policy_name, kind, n, seed, shift_at=None):
+    env, _, arms, wins, cost = simulate_with_policy(policy_name, kind, n, seed, shift_at)
     return env, arms, wins, cost
 
 
@@ -265,7 +288,7 @@ def plot(results, n, window, out_dir):
 
     paths = []
     for kind in ENVIRONMENTS:
-        fig, ax = plt.subplots(figsize=(9, 5), dpi=150)
+        fig, ax = plt.subplots(figsize=(14, 8), dpi=100)
         if "best_arm_rate" in results[kind]:
             ax.plot(results[kind]["best_arm_rate"], color="black", ls="--", lw=1,
                     label="Best config (oracle)")
@@ -273,17 +296,17 @@ def plot(results, n, window, out_dir):
             r = results[kind][p]
             ax.plot(r["rolling_success"], color=COLORS[p], lw=2,
                     label=f"{LABELS[p]}  {r['mean_success_rate']:.3f}")
-        ax.set_title(TITLES[kind])
+        ax.set_title(TITLES[kind], fontsize=18)
         ax.set_xlabel("Request")
         ax.set_ylabel(f"Success rate (rolling {window}, mean of seeds)")
         ax.set_ylim(0.2, 1.0)
         ax.set_xlim(0, n)
         ax.grid(alpha=0.3)
-        ax.legend(loc="lower left", fontsize=7, title="Method  overall success",
-                  title_fontsize=8)
-        fig.text(0.99, 0.01, "Synthetic simulation, not production data",
-                 ha="right", fontsize=7, color="#5f6368")
-        fig.tight_layout()
+        fig.legend(*ax.get_legend_handles_labels(), loc="lower center",
+                   bbox_to_anchor=(0.5, 0.02), ncol=2, fontsize=22, frameon=False)
+        fig.text(0.99, 0.98, "Synthetic simulation, not production data",
+                 ha="right", fontsize=12, color="#5f6368")
+        fig.tight_layout(rect=(0, 0.23, 1, 0.96))
         path = out_dir / f"{kind}.png"
         fig.savefig(path)
         plt.close(fig)
@@ -297,28 +320,41 @@ def animate(results, n, window, out_dir, kind, frames=60):
     import matplotlib.pyplot as plt
     from matplotlib.animation import FuncAnimation, PillowWriter
 
-    fig, (ax, bx) = plt.subplots(1, 2, figsize=(11, 4.5), dpi=100,
+    fig, (ax, bx) = plt.subplots(1, 2, figsize=(14, 8.2), dpi=100,
                                  gridspec_kw={"width_ratios": [2, 1]})
     policies = chart_policies(kind)
     lines = {p: ax.plot([], [], color=COLORS[p], lw=2, label=LABELS[p])[0] for p in policies}
+    if kind == "adversarial":
+        # Detection's cost: each method's success on the same site when it does not react.
+        for p in policies:
+            ax.axhline(results["stationary"][p]["mean_success_rate"], color=COLORS[p], ls="--", lw=1)
+        ax.plot([], [], color="black", ls="--", lw=1, label="Dashed: same method, site not reacting")
     if "best_arm_rate" in results[kind]:
         ax.plot(results[kind]["best_arm_rate"], color="black", ls="--", lw=1,
                 label="Best config (oracle)")
     ax.set_xlim(0, n)
     ax.set_ylim(0.2, 1.0)
-    ax.set_title(TITLES[kind], fontsize=9)
+    ax.set_title(TITLES[kind], fontsize=16)
     ax.set_xlabel("Request")
     ax.set_ylabel(f"Success rate (rolling {window})")
     ax.grid(alpha=0.3)
-    ax.legend(loc="lower left", fontsize=6)
+    import textwrap
+    handles, labels = ax.get_legend_handles_labels()
+    labels = ["\n".join(textwrap.wrap(label, 32)) for label in labels]
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0.02),
+               ncol=2, fontsize=22, frameon=False, handlelength=2.5)
     groups = Environment(kind, n).groups()
     bars = bx.bar(groups, [0] * len(groups), color=["#d93025", "#1a73e8", "#188038"])
     bx.set_ylim(0, 1)
-    bx.set_title("Thompson + forgetting: traffic share" +
-                 (" by fetch method" if kind == "knobs" else ""), fontsize=9)
-    fig.text(0.99, 0.01, "Synthetic simulation, not production data",
-             ha="right", fontsize=7, color="#5f6368")
-    fig.tight_layout()
+    bx.set_title(f"Traffic share · last {window:,} requests\nThompson + forgetting", fontsize=15)
+    bx.set_ylabel("Fraction of requests", fontsize=14)
+    bx.tick_params(labelsize=14)
+    ax.tick_params(labelsize=13)
+    ax.xaxis.label.set_size(14)
+    ax.yaxis.label.set_size(14)
+    fig.text(0.99, 0.98, "Synthetic simulation, not production data",
+             ha="right", fontsize=12, color="#5f6368")
+    fig.tight_layout(rect=(0, 0.37, 1, 0.95))
     share = results[kind]["thompson_decay"]["rolling_group_share"]
 
     def update(frame):
@@ -341,14 +377,16 @@ def animate_lines(path, panels, n, frames=60):
     """Draw each panel's lines left to right as a looping GIF.
 
     panels: dicts with title, ylabel, ylim and series [(label, color, values)];
-    an optional ref (label, values) is drawn whole as a dashed black line.
+    an optional ref (label, values) is drawn whole as a dashed black line, and an
+    optional baselines list, one value per series, as dashed lines in each series' color
+    with baseline_label naming them in the legend.
     """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.animation import FuncAnimation, PillowWriter
 
-    fig, axes = plt.subplots(1, len(panels), figsize=(11, 4.5), dpi=100, squeeze=False)
+    fig, axes = plt.subplots(1, len(panels), figsize=(14, 8.2), dpi=100, squeeze=False)
     lines = []
     for ax, panel in zip(axes[0], panels):
         if panel.get("ref"):
@@ -356,16 +394,28 @@ def animate_lines(path, panels, n, frames=60):
             ax.plot(values, color="black", ls="--", lw=1, label=label)
         for label, color, values in panel["series"]:
             lines.append((ax.plot([], [], color=color, lw=2, label=label)[0], values))
+        for (_, color, _), value in zip(panel["series"], panel.get("baselines", [])):
+            ax.axhline(value, color=color, ls="--", lw=1)
+        if panel.get("baselines"):
+            ax.plot([], [], color="black", ls="--", lw=1, label=panel["baseline_label"])
         ax.set_xlim(0, n)
         ax.set_ylim(*panel["ylim"])
-        ax.set_title(panel["title"], fontsize=9)
+        ax.set_title(panel["title"], fontsize=15)
+        ax.tick_params(labelsize=13)
         ax.set_xlabel("Request")
         ax.set_ylabel(panel["ylabel"])
         ax.grid(alpha=0.3)
-    axes[0][0].legend(loc="lower left", fontsize=6)
-    fig.text(0.99, 0.01, "Synthetic simulation, not production data",
-             ha="right", fontsize=7, color="#5f6368")
-    fig.tight_layout()
+    import textwrap
+    handles, labels = axes[0][0].get_legend_handles_labels()
+    labels = ["\n".join(textwrap.wrap(label, 32)) for label in labels]
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, 0.02),
+               ncol=2, fontsize=22, frameon=False, handlelength=2.5)
+    for ax in axes[0]:
+        ax.xaxis.label.set_size(14)
+        ax.yaxis.label.set_size(14)
+    fig.text(0.99, 0.98, "Synthetic simulation, not production data",
+             ha="right", fontsize=12, color="#5f6368")
+    fig.tight_layout(rect=(0, 0.37, 1, 0.95))
 
     def update(frame):
         end = max(1, int(n * (frame + 1) / frames))
@@ -392,6 +442,20 @@ def animate_knob_cost(results, n, window, out_dir):
                     for p in policies]},
     ]
     return animate_lines(out_dir / "knobs-cost.gif", panels, n)
+
+
+def animate_shift_cost(results, n, window, out_dir):
+    policies = ("triggered_retest", "thompson_decay", "thompson", "grid_search")
+    panels = [
+        {"title": TITLES["shift"], "ylabel": f"Success rate (rolling {window})", "ylim": (0.2, 1.0),
+         "ref": ("Best config (oracle)", results["shift"]["best_arm_rate"]),
+         "series": [(LABELS[p], COLORS[p], results["shift"][p]["rolling_success"]) for p in policies]},
+        {"title": "One unit per attempt, including trial traffic",
+         "ylabel": f"Units per success (rolling {window})", "ylim": (1, 3.5),
+         "series": [(LABELS[p], COLORS[p], results["shift"][p]["rolling_cost_per_success"])
+                    for p in policies]},
+    ]
+    return animate_lines(out_dir / "shift.gif", panels, n)
 
 
 def hold_last_frame(path, seconds=2):
@@ -437,6 +501,9 @@ def main():
     summary = {
         "simulation": True, "requests": args.requests, "seeds": args.seeds,
         "rolling_window": args.window, "base_rates": BASE,
+        "triggered_retest": {"window": RETEST_WINDOW, "threshold": RETEST_THRESHOLD,
+                             "monitor": "Full trailing window of post-commit outcomes; cleared at each re-test",
+                             "trials_per_arm": {"three_arms": 30, "knobs": 10}},
         "adversarial": {"strength": ADV_STRENGTH, "usage_memory": ADV_MEMORY},
         "knobs": {"intercept": KNOB_INTERCEPT, "fetch": FETCH, "proxy": PROXY,
                   "headers": HEADERS, "tls_flag_penalty": TLS_FLAG_PENALTY,
@@ -452,7 +519,10 @@ def main():
             print(f"Wrote {path}")
     if args.gif:
         for kind in ENVIRONMENTS:
-            print(f"Wrote {animate(results, args.requests, args.window, args.output_dir, kind)}")
+            path = (animate_shift_cost(results, args.requests, args.window, args.output_dir)
+                    if kind == "shift" else
+                    animate(results, args.requests, args.window, args.output_dir, kind))
+            print(f"Wrote {path}")
         print(f"Wrote {animate_knob_cost(results, args.requests, args.window, args.output_dir)}")
 
 

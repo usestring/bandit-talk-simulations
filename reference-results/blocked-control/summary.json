@@ -1,0 +1,283 @@
+{
+  "environment": "Reactive A/B/C plus D that always fails",
+  "base_probabilities": [
+    0.9,
+    0.75,
+    0.6,
+    0.0
+  ],
+  "attempt_costs": [
+    4.0,
+    2.0,
+    1.0,
+    1.0
+  ],
+  "usage_penalty": 0.6,
+  "usage_update": 0.01,
+  "initial_usage": [
+    0.3333333333333333,
+    0.3333333333333333,
+    0.3333333333333333,
+    0.0
+  ],
+  "settings": "Default policies; 30 search trials per arm; re-test <70% over 100 committed outcomes",
+  "scenarios": {
+    "three_arms": "Original three-arm reactive site",
+    "blocked_unknown": "D is available; learner observes its failures",
+    "blocked_pruned": "D is known to be blocked and excluded before selection"
+  },
+  "source_sha256": "30af4064ce748e929094516761d1fb167df3d6cd76bfe4be88028381de544faa",
+  "simulator_sha256": "f472214a5191e45b085f39aecf81671419ef1a00b2146f973302b30d95bbf0ef",
+  "results": {
+    "2000": {
+      "seeds": 50,
+      "requests_per_seed": 2000,
+      "policies": {
+        "round_robin": {
+          "three_arms": {
+            "success": 0.60266,
+            "blocked_share": 0.0,
+            "units_per_success": 3.8741695744288305
+          },
+          "blocked_unknown": {
+            "success": 0.47853,
+            "blocked_share": 0.25,
+            "units_per_success": 4.180902250551673
+          },
+          "blocked_pruned": {
+            "success": 0.60266,
+            "blocked_share": 0.0,
+            "units_per_success": 3.8741695744288305
+          }
+        },
+        "grid_search": {
+          "three_arms": {
+            "success": 0.38177,
+            "blocked_share": 0.0,
+            "units_per_success": 9.50897190635118
+          },
+          "blocked_unknown": {
+            "success": 0.3845,
+            "blocked_share": 0.015,
+            "units_per_success": 9.917248230285288
+          },
+          "blocked_pruned": {
+            "success": 0.38177,
+            "blocked_share": 0.0,
+            "units_per_success": 9.50897190635118
+          }
+        },
+        "triggered_retest": {
+          "three_arms": {
+            "success": 0.57425,
+            "blocked_share": 0.0,
+            "units_per_success": 4.748621895296295
+          },
+          "blocked_unknown": {
+            "success": 0.51208,
+            "blocked_share": 0.13728,
+            "units_per_success": 4.9121206039741185
+          },
+          "blocked_pruned": {
+            "success": 0.57425,
+            "blocked_share": 0.0,
+            "units_per_success": 4.748621895296295
+          }
+        },
+        "ucb1": {
+          "three_arms": {
+            "success": 0.59838,
+            "blocked_share": 0.0,
+            "units_per_success": 4.765556209661875
+          },
+          "blocked_unknown": {
+            "success": 0.59209,
+            "blocked_share": 0.01383,
+            "units_per_success": 4.785636415148989
+          },
+          "blocked_pruned": {
+            "success": 0.59838,
+            "blocked_share": 0.0,
+            "units_per_success": 4.765556209661875
+          }
+        },
+        "exp3": {
+          "three_arms": {
+            "success": 0.58976,
+            "blocked_share": 0.0,
+            "units_per_success": 5.012875865722526
+          },
+          "blocked_unknown": {
+            "success": 0.57648,
+            "blocked_share": 0.03393,
+            "units_per_success": 5.018064232040467
+          },
+          "blocked_pruned": {
+            "success": 0.58976,
+            "blocked_share": 0.0,
+            "units_per_success": 5.012875865722526
+          }
+        },
+        "thompson": {
+          "three_arms": {
+            "success": 0.58428,
+            "blocked_share": 0.0,
+            "units_per_success": 5.258121221686
+          },
+          "blocked_unknown": {
+            "success": 0.58461,
+            "blocked_share": 0.00367,
+            "units_per_success": 5.211139063581488
+          },
+          "blocked_pruned": {
+            "success": 0.58428,
+            "blocked_share": 0.0,
+            "units_per_success": 5.258121221686
+          }
+        },
+        "thompson_decay": {
+          "three_arms": {
+            "success": 0.59573,
+            "blocked_share": 0.0,
+            "units_per_success": 4.838911164043944
+          },
+          "blocked_unknown": {
+            "success": 0.58821,
+            "blocked_share": 0.01756,
+            "units_per_success": 4.875014031328473
+          },
+          "blocked_pruned": {
+            "success": 0.59573,
+            "blocked_share": 0.0,
+            "units_per_success": 4.838911164043944
+          }
+        }
+      }
+    },
+    "20000": {
+      "seeds": 20,
+      "requests_per_seed": 20000,
+      "policies": {
+        "round_robin": {
+          "three_arms": {
+            "success": 0.603145,
+            "blocked_share": 0.0,
+            "units_per_success": 3.868851102651482
+          },
+          "blocked_unknown": {
+            "success": 0.47963,
+            "blocked_share": 0.25,
+            "units_per_success": 4.169995386787376
+          },
+          "blocked_pruned": {
+            "success": 0.603145,
+            "blocked_share": 0.0,
+            "units_per_success": 3.868851102651482
+          }
+        },
+        "grid_search": {
+          "three_arms": {
+            "success": 0.354765,
+            "blocked_share": 0.0,
+            "units_per_success": 10.316882393383224
+          },
+          "blocked_unknown": {
+            "success": 0.363615,
+            "blocked_share": 0.0015,
+            "units_per_success": 10.96797244548526
+          },
+          "blocked_pruned": {
+            "success": 0.354765,
+            "blocked_share": 0.0,
+            "units_per_success": 10.316882393383224
+          }
+        },
+        "triggered_retest": {
+          "three_arms": {
+            "success": 0.5727,
+            "blocked_share": 0.0,
+            "units_per_success": 4.749884412272853
+          },
+          "blocked_unknown": {
+            "success": 0.5124575,
+            "blocked_share": 0.13648000000000002,
+            "units_per_success": 4.89948912394167
+          },
+          "blocked_pruned": {
+            "success": 0.5727,
+            "blocked_share": 0.0,
+            "units_per_success": 4.749884412272853
+          }
+        },
+        "ucb1": {
+          "three_arms": {
+            "success": 0.5772375,
+            "blocked_share": 0.0,
+            "units_per_success": 5.198640744514166
+          },
+          "blocked_unknown": {
+            "success": 0.5775375,
+            "blocked_share": 0.002515,
+            "units_per_success": 5.168318334214855
+          },
+          "blocked_pruned": {
+            "success": 0.5772375,
+            "blocked_share": 0.0,
+            "units_per_success": 5.198640744514166
+          }
+        },
+        "exp3": {
+          "three_arms": {
+            "success": 0.581085,
+            "blocked_share": 0.0,
+            "units_per_success": 5.264205053990436
+          },
+          "blocked_unknown": {
+            "success": 0.5722849999999999,
+            "blocked_share": 0.0262325,
+            "units_per_success": 5.28577150975456
+          },
+          "blocked_pruned": {
+            "success": 0.581085,
+            "blocked_share": 0.0,
+            "units_per_success": 5.264205053990436
+          }
+        },
+        "thompson": {
+          "three_arms": {
+            "success": 0.5845425,
+            "blocked_share": 0.0,
+            "units_per_success": 5.306657634275808
+          },
+          "blocked_unknown": {
+            "success": 0.585195,
+            "blocked_share": 0.0005,
+            "units_per_success": 5.280718825151979
+          },
+          "blocked_pruned": {
+            "success": 0.5845425,
+            "blocked_share": 0.0,
+            "units_per_success": 5.306657634275808
+          }
+        },
+        "thompson_decay": {
+          "three_arms": {
+            "success": 0.595915,
+            "blocked_share": 0.0,
+            "units_per_success": 4.822825112583084
+          },
+          "blocked_unknown": {
+            "success": 0.5896975,
+            "blocked_share": 0.0162225,
+            "units_per_success": 4.826752823180164
+          },
+          "blocked_pruned": {
+            "success": 0.595915,
+            "blocked_share": 0.0,
+            "units_per_success": 4.822825112583084
+          }
+        }
+      }
+    }
+  }
+}

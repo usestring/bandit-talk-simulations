@@ -382,5 +382,35 @@
       "cost_per_success": 5.035559891664056,
       "cost_per_request": 2.9783325
     }
-  ]
+  ],
+  "not_reacting": {
+    "Round-robin": {
+      "success_rate": 0.7509125,
+      "cost_per_success": 3.1074602391280117
+    },
+    "Explore then commit (30/arm)": {
+      "success_rate": 0.8989525,
+      "cost_per_success": 4.441292463843449
+    },
+    "Periodic re-test every 100": {
+      "success_rate": 0.7645825,
+      "cost_per_success": 3.2607822740651367
+    },
+    "Periodic re-test every 1,000": {
+      "success_rate": 0.8823575,
+      "cost_per_success": 4.3087197506417345
+    },
+    "UCB, forgetting 0.98": {
+      "success_rate": 0.7889925,
+      "cost_per_success": 3.4693868546298603
+    },
+    "Thompson, no forgetting": {
+      "success_rate": 0.898575,
+      "cost_per_success": 4.436269881326831
+    },
+    "Thompson, forgetting 0.9": {
+      "success_rate": 0.8181925,
+      "cost_per_success": 3.7376551929471757
+    }
+  }
 }

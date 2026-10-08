@@ -1,0 +1,167 @@
+{
+  "simulation": true,
+  "requests": 5000,
+  "seeds": 20,
+  "arms": [
+    "Stealth browser",
+    "TLS client",
+    "Plain HTTP"
+  ],
+  "base_rates": [
+    0.9,
+    0.45,
+    0.15
+  ],
+  "costs": [
+    4.0,
+    1.0,
+    0.25
+  ],
+  "success_value": 5.0,
+  "multiplier": 5,
+  "latency_per_attempt_s": 5.0,
+  "strength": 0.6,
+  "usage_memory": 0.01,
+  "environments": {
+    "stationary": [
+      {
+        "policy": "round_robin",
+        "label": "Round-robin",
+        "params": {},
+        "success_rate": 0.50071,
+        "seconds_per_success": 9.985820135407721,
+        "attempts_per_success": 1.9971640270815443,
+        "cost_per_success": 3.495636196600827,
+        "cost_per_request": 1.7503,
+        "value_per_request": 0.75325,
+        "traffic_share": {
+          "Stealth browser": 0.3334,
+          "TLS client": 0.3334,
+          "Plain HTTP": 0.3332
+        }
+      },
+      {
+        "policy": "thompson",
+        "label": "Thompson, success only",
+        "params": {},
+        "success_rate": 0.89757,
+        "seconds_per_success": 5.5705961652016,
+        "attempts_per_success": 1.11411923304032,
+        "cost_per_success": 4.446257673496217,
+        "cost_per_request": 3.9908275,
+        "value_per_request": 0.4970225,
+        "traffic_share": {
+          "Stealth browser": 0.99715,
+          "TLS client": 0.00202,
+          "Plain HTTP": 0.00083
+        }
+      },
+      {
+        "policy": "value",
+        "label": "Thompson, value (success worth $5)",
+        "params": {
+          "weight": 5.0
+        },
+        "success_rate": 0.44707,
+        "seconds_per_success": 11.183930928042589,
+        "attempts_per_success": 2.2367861856085174,
+        "cost_per_success": 2.219322477464379,
+        "cost_per_request": 0.9921925,
+        "value_per_request": 1.2431575,
+        "traffic_share": {
+          "Stealth browser": 0.00136,
+          "TLS client": 0.98279,
+          "Plain HTTP": 0.01585
+        }
+      },
+      {
+        "policy": "value",
+        "label": "Thompson, performance (5x success weight)",
+        "params": {
+          "weight": 25.0
+        },
+        "success_rate": 0.896,
+        "seconds_per_success": 5.580357142857142,
+        "attempts_per_success": 1.1160714285714286,
+        "cost_per_success": 4.444263392857143,
+        "cost_per_request": 3.98206,
+        "value_per_request": 0.49794,
+        "traffic_share": {
+          "Stealth browser": 0.99442,
+          "TLS client": 0.00398,
+          "Plain HTTP": 0.0016
+        }
+      }
+    ],
+    "adversarial": [
+      {
+        "policy": "round_robin",
+        "label": "Round-robin",
+        "params": {},
+        "success_rate": 0.40183,
+        "seconds_per_success": 12.44307294129358,
+        "attempts_per_success": 2.488614588258716,
+        "cost_per_success": 4.355822113829231,
+        "cost_per_request": 1.7503,
+        "value_per_request": 0.25885,
+        "traffic_share": {
+          "Stealth browser": 0.3334,
+          "TLS client": 0.3334,
+          "Plain HTTP": 0.3332
+        }
+      },
+      {
+        "policy": "thompson",
+        "label": "Thompson, success only",
+        "params": {},
+        "success_rate": 0.42783,
+        "seconds_per_success": 11.68688497767805,
+        "attempts_per_success": 2.33737699553561,
+        "cost_per_success": 8.466750812238505,
+        "cost_per_request": 3.62233,
+        "value_per_request": -1.48318,
+        "traffic_share": {
+          "Stealth browser": 0.87526,
+          "TLS client": 0.12014,
+          "Plain HTTP": 0.0046
+        }
+      },
+      {
+        "policy": "value",
+        "label": "Thompson, value (success worth $5)",
+        "params": {
+          "weight": 5.0
+        },
+        "success_rate": 0.26851,
+        "seconds_per_success": 18.62128039924025,
+        "attempts_per_success": 3.72425607984805,
+        "cost_per_success": 3.704145097016871,
+        "cost_per_request": 0.9946,
+        "value_per_request": 0.34795,
+        "traffic_share": {
+          "Stealth browser": 0.06886,
+          "TLS client": 0.6485,
+          "Plain HTTP": 0.28264
+        }
+      },
+      {
+        "policy": "value",
+        "label": "Thompson, performance (5x success weight)",
+        "params": {
+          "weight": 25.0
+        },
+        "success_rate": 0.46936,
+        "seconds_per_success": 10.65280381796489,
+        "attempts_per_success": 2.1305607635929777,
+        "cost_per_success": 6.812563916822908,
+        "cost_per_request": 3.197545,
+        "value_per_request": -0.850745,
+        "traffic_share": {
+          "Stealth browser": 0.73456,
+          "TLS client": 0.25726,
+          "Plain HTTP": 0.00818
+        }
+      }
+    ]
+  }
+}

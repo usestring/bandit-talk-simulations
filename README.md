@@ -2,7 +2,7 @@
 
 Offline simulations from **The Multi-Armed Bandit and Web Data**, presented at Extract Summit Austin, October 2026.
 
-Compare round-robin, explore-then-commit, periodic re-testing, epsilon-greedy, UCB1, EXP3, and Thompson sampling with and without forgetting. All outcomes and costs are synthetic. The scripts make no network requests.
+Compare round-robin, explore-then-commit, triggered re-testing, epsilon-greedy, UCB1, EXP3, and Thompson sampling with and without forgetting. All outcomes and costs are synthetic. The scripts make no network requests.
 
 ## Run
 
@@ -14,10 +14,13 @@ python3 bandit_environments.py
 python3 adversarial_long.py
 python3 many_sites.py
 python3 measure_convergence.py
+python3 measure_retest.py
+python3 blocked_control.py
+python3 value_scoring.py
 python3 -m unittest -v
 ```
 
-The default runs reproduce the saved JSON receipts in `reference-results/`. Generated files go to `results/`, which Git ignores. The larger runs can take several minutes.
+The default runs reproduce the saved JSON receipts in `reference-results/`. Use `adversarial_long.py --gif` to include the saved non-reacting-site comparison. Generated files go to `results/`, which Git ignores. The larger runs can take several minutes.
 
 For a quick comparison:
 
@@ -38,9 +41,10 @@ python -m pip install -r requirements-plot.txt
 python bandit_environments.py --plot --gif
 python adversarial_long.py --plot --gif
 python many_sites.py --gif
+python value_scoring.py --gif
 ```
 
-`bandit_environments.py --plot --gif` writes five PNG charts and six looping GIFs, including a success-versus-cost view for the knob experiment. The other scripts animate the long reactive-site experiment and the many-sites experiment. The animations hold their final frame for two seconds before looping. Every animation labels its results as synthetic.
+`bandit_environments.py --plot --gif` writes five PNG charts and six looping GIFs, including a success-versus-cost view for the knob experiment. The other scripts animate the long reactive-site experiment, the many-sites experiment, and stable versus reactive sites scored by success or value. Dashed colored lines show the same method on a site that does not react. The animations hold their final frame for two seconds before looping. Every animation labels its results as synthetic.
 
 ## Experiments
 
@@ -50,13 +54,17 @@ python many_sites.py --gif
 | `bandit_environments.py` | How do selection methods behave under stable rewards, abrupt shifts, gradual drift, reactive rewards, and a larger configuration space? | 2,000 decisions per policy and environment, 50 seeds |
 | `adversarial_long.py` | How do forgetting and re-testing settings behave when traffic changes future rewards? | 20,000 decisions per setting, 20 seeds |
 | `many_sites.py` | Does sharing a prior help domains with little traffic? | 500 synthetic domains, 30,000 decisions, 10 seeds |
+| `measure_retest.py` | How does a success-triggered re-test behave across unseen change times and unchanged sites? | 2,000 decisions, 100 held-out seeds |
+| `blocked_control.py` | What happens when a fourth configuration always fails, and when it is pruned beforehand? | 2,000 decisions × 50 seeds and 20,000 × 20 |
+| `value_scoring.py` | How does valuing success against cost change Thompson sampling choices? | 5,000 decisions per setting and environment, 20 seeds |
 | `measure_convergence.py` | How long does each policy sustain a small expected reward gap? | 2,000 decisions per run, 50 seeds |
 
 The first four environments use three abstract configurations with base success probabilities 0.90, 0.75, and 0.60. The knob environment uses 36 combinations of fetch method, proxy type, and header set. A predefined shortlist keeps 12 combinations. The many-sites experiment uses that same shortlist.
 
 ## Reading the results
 
-- Policies learn from binary success alone. Cost is an invented per-request value reported afterward; the policies do not optimize cost or latency.
+- The main comparisons learn from binary success alone and report invented cost afterward. `value_scoring.py` compares that objective with success value minus attempt cost; all attempts have the same assumed latency.
+- Triggered re-testing starts a fresh search when a full window of 100 post-commit outcomes falls below 70% success. The monitor resets after each search. This illustrative threshold was chosen before the held-out evaluation; it is not a production SLA.
 - Expected regret uses the simulator's known probabilities. A real selector does not observe those probabilities or the oracle best arm.
 - The reactive environment is called `adversarial` in the code. It reduces an arm's success probability with recent traffic share. This toy model does not establish performance against arbitrary adversaries.
 - The shortlist retains the best combination before and after the modeled change by construction. Pruning can discard the best arm in another problem.

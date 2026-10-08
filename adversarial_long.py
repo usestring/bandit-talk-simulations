@@ -76,9 +76,9 @@ class Policy(be.Policy):
             self.recent = (self.recent + [reward])[-self.block_window:]
 
 
-def simulate(name, params, n, seed, window):
+def simulate(name, params, n, seed, window, kind="adversarial"):
     outcomes, choices = random.Random(seed), random.Random(seed + 1_000_003)
-    env = be.Environment("adversarial", n)
+    env = be.Environment(kind, n)
     policy = Policy(name, 3, n, choices, **params)
     arms, rewards = [], []
     for t in range(n):
@@ -134,13 +134,27 @@ def main():
              "UCB, forgetting 0.98": "#1a73e8", "Thompson, no forgetting": "#a142f4",
              "Thompson, forgetting 0.9": "#188038"}
     if args.gif:
+        # The same methods on the same site when it does not react, so the gap is what detection costs.
+        calm = {}
+        for name, label, params in SETTINGS:
+            if label in shown:
+                runs = [simulate(name, params, args.requests, seed, args.window, "stationary")
+                        for seed in range(args.seeds)]
+                calm[label] = (sum(w for w, *_ in runs) / (args.requests * args.seeds),
+                               sum(c / max(1, w) for w, c, *_ in runs) / args.seeds)
+        summary["not_reacting"] = {label: {"success_rate": r, "cost_per_success": c}
+                                   for label, (r, c) in calm.items()}
+        (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+        baseline_label = "Dashed: same method, site not reacting"
         panels = [
             {"title": f"Reactive site, {args.requests:,} requests x {args.seeds} seeds",
-             "ylabel": f"Success rate (rolling {args.window})", "ylim": (0.2, 0.8),
-             "series": [(label, color, curves[label]) for label, color in shown.items()]},
+             "ylabel": f"Success rate (rolling {args.window})", "ylim": (0.2, 1.0),
+             "series": [(label, color, curves[label]) for label, color in shown.items()],
+             "baselines": [calm[label][0] for label in shown], "baseline_label": baseline_label},
             {"title": "Cost per success (illustrative: A=4, B=2, C=1)",
              "ylabel": f"Cost per success (rolling {args.window})", "ylim": (0, 14),
-             "series": [(label, color, spends[label]) for label, color in shown.items()]},
+             "series": [(label, color, spends[label]) for label, color in shown.items()],
+             "baselines": [calm[label][1] for label in shown], "baseline_label": baseline_label},
         ]
         be.animate_lines(args.output_dir / "rolling.gif", panels, args.requests)
     if args.plot:
