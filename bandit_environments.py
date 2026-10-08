@@ -223,7 +223,7 @@ def run(n, seeds, window):
         for policy in POLICIES:
             if not applicable(policy, kind):
                 continue
-            mean_roll, share, rates, costs = [0.0] * n, None, [], []
+            mean_roll, mean_spend, share, rates, costs = [0.0] * n, [0.0] * n, None, [], []
             for seed in seeds:
                 env, arms, wins, cost = simulate(policy, kind, n, seed)
                 groups = env.groups()
@@ -233,6 +233,8 @@ def run(n, seeds, window):
                 costs.append(cost / max(1, sum(wins)))
                 for i, r in enumerate(rolling(wins, window)):
                     mean_roll[i] += r / len(seeds)
+                for i, r in enumerate(rolling([env.cost(a) for a in arms], window)):
+                    mean_spend[i] += r / len(seeds)
                 for g, name in enumerate(groups):
                     for i, r in enumerate(rolling([int(env.group(a) == name) for a in arms], window)):
                         share[i][g] += r / len(seeds)
@@ -242,6 +244,7 @@ def run(n, seeds, window):
                 "max_success_rate": max(rates),
                 "mean_cost_per_success": sum(costs) / len(costs),
                 "rolling_success": mean_roll,
+                "rolling_cost_per_success": [c / max(1e-9, r) for c, r in zip(mean_spend, mean_roll)],
                 "rolling_group_share": share,
             }
         if kind != "adversarial":
@@ -334,7 +337,64 @@ def animate(results, n, window, out_dir, kind, frames=60):
     return path
 
 
-def hold_last_frame(path, seconds=10):
+def animate_lines(path, panels, n, frames=60):
+    """Draw each panel's lines left to right as a looping GIF.
+
+    panels: dicts with title, ylabel, ylim and series [(label, color, values)];
+    an optional ref (label, values) is drawn whole as a dashed black line.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.animation import FuncAnimation, PillowWriter
+
+    fig, axes = plt.subplots(1, len(panels), figsize=(11, 4.5), dpi=100, squeeze=False)
+    lines = []
+    for ax, panel in zip(axes[0], panels):
+        if panel.get("ref"):
+            label, values = panel["ref"]
+            ax.plot(values, color="black", ls="--", lw=1, label=label)
+        for label, color, values in panel["series"]:
+            lines.append((ax.plot([], [], color=color, lw=2, label=label)[0], values))
+        ax.set_xlim(0, n)
+        ax.set_ylim(*panel["ylim"])
+        ax.set_title(panel["title"], fontsize=9)
+        ax.set_xlabel("Request")
+        ax.set_ylabel(panel["ylabel"])
+        ax.grid(alpha=0.3)
+    axes[0][0].legend(loc="lower left", fontsize=6)
+    fig.text(0.99, 0.01, "Synthetic simulation, not production data",
+             ha="right", fontsize=7, color="#5f6368")
+    fig.tight_layout()
+
+    def update(frame):
+        end = max(1, int(n * (frame + 1) / frames))
+        for line, values in lines:
+            line.set_data(range(end), values[:end])
+        return [line for line, _ in lines]
+
+    anim = FuncAnimation(fig, update, frames=frames, blit=False)
+    anim.save(path, writer=PillowWriter(fps=12))
+    plt.close(fig)
+    hold_last_frame(path)
+    return path
+
+
+def animate_knob_cost(results, n, window, out_dir):
+    policies = chart_policies("knobs")
+    panels = [
+        {"title": TITLES["knobs"], "ylabel": f"Success rate (rolling {window})", "ylim": (0.2, 1.0),
+         "ref": ("Best config (oracle)", results["knobs"]["best_arm_rate"]),
+         "series": [(LABELS[p], COLORS[p], results["knobs"][p]["rolling_success"]) for p in policies]},
+        {"title": "Cost per success (illustrative units)", "ylabel": f"Cost per success (rolling {window})",
+         "ylim": (0, 80),
+         "series": [(LABELS[p], COLORS[p], results["knobs"][p]["rolling_cost_per_success"])
+                    for p in policies]},
+    ]
+    return animate_lines(out_dir / "knobs-cost.gif", panels, n)
+
+
+def hold_last_frame(path, seconds=2):
     """Rewrite the final frame's delay so a looping GIF rests on the finished chart."""
     data = bytearray(path.read_bytes())
     pos, last = 13, None
@@ -393,6 +453,7 @@ def main():
     if args.gif:
         for kind in ENVIRONMENTS:
             print(f"Wrote {animate(results, args.requests, args.window, args.output_dir, kind)}")
+        print(f"Wrote {animate_knob_cost(results, args.requests, args.window, args.output_dir)}")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@
   "quantiles": "Nearest rank across all 50 seeds, with non-converged runs right-censored. Null means rank not reached within budget.",
   "timing": "Attempts across a learning run, not retries of one fetch. Sequential service-time equivalent excludes backoff, arrival gaps and concurrency.",
   "adversarial": "Not applicable: traffic changes future rewards and there is no fixed convergence target.",
-  "simulation_sha256": "f31ca4ccf57edeed48739c487dbc671f43c14c3e65404156e45948ad2b0b94aa",
+  "simulation_sha256": "ce7da46efaec5faf6ccc9de9ceb9081884ce670d84cfa3904f11de0dae219fa9",
   "results": {
     "stationary": {
       "round_robin": {"mean_success_rate": 0.75074, "phases": {"initial": {"runs_converged": 0, "runs": 50, "budget_requests": 2000, "budget_seconds": 10000, "median_requests": null, "p90_requests": null, "median_seconds": null, "p90_seconds": null, "confirmation_requests_by_seed": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]}}},
