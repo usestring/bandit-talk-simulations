@@ -1,0 +1,299 @@
+{
+  "simulation": true,
+  "domains": 500,
+  "requests": 30000,
+  "seeds": 10,
+  "arms": [
+    [
+      "tls",
+      "resi-us",
+      "minimal"
+    ],
+    [
+      "tls",
+      "resi-us",
+      "consistent"
+    ],
+    [
+      "tls",
+      "resi-eu",
+      "minimal"
+    ],
+    [
+      "tls",
+      "resi-eu",
+      "consistent"
+    ],
+    [
+      "tls",
+      "mobile",
+      "minimal"
+    ],
+    [
+      "tls",
+      "mobile",
+      "consistent"
+    ],
+    [
+      "browser",
+      "resi-us",
+      "minimal"
+    ],
+    [
+      "browser",
+      "resi-us",
+      "consistent"
+    ],
+    [
+      "browser",
+      "resi-eu",
+      "minimal"
+    ],
+    [
+      "browser",
+      "resi-eu",
+      "consistent"
+    ],
+    [
+      "browser",
+      "mobile",
+      "minimal"
+    ],
+    [
+      "browser",
+      "mobile",
+      "consistent"
+    ]
+  ],
+  "costs": [
+    10,
+    10,
+    10,
+    10,
+    27,
+    27,
+    28,
+    28,
+    28,
+    28,
+    45,
+    45
+  ],
+  "families": [
+    [
+      "fetch",
+      "tls"
+    ],
+    [
+      "fetch",
+      "browser"
+    ],
+    [
+      "proxy",
+      "mobile"
+    ],
+    [
+      "proxy",
+      "resi-us"
+    ]
+  ],
+  "family_penalty": 2.0,
+  "domain_sd": 0.6,
+  "head_domains": 39.6,
+  "tail_domains": 329.0,
+  "tail_traffic_share": 0.11355333333333333,
+  "results": [
+    {
+      "policy": "global",
+      "label": "One shared Thompson, ignores domain",
+      "params": {},
+      "all": {
+        "success_rate": 0.7980866666666666,
+        "cost_per_success": 29.495687240399416,
+        "cost_per_request": 23.505760000000002
+      },
+      "head": {
+        "success_rate": 0.8079024042157853,
+        "cost_per_success": 29.152576704610134,
+        "cost_per_request": 23.50938598402148
+      },
+      "tail": {
+        "success_rate": 0.7791093619375907,
+        "cost_per_success": 30.282053743195128,
+        "cost_per_request": 23.50529512973247
+      }
+    },
+    {
+      "policy": "per_domain",
+      "label": "Thompson per domain, starts from scratch",
+      "params": {},
+      "all": {
+        "success_rate": 0.8329533333333334,
+        "cost_per_success": 29.38669185754275,
+        "cost_per_request": 24.473723333333332
+      },
+      "head": {
+        "success_rate": 0.8866679032987606,
+        "cost_per_success": 27.64745962103825,
+        "cost_per_request": 24.50648326815839
+      },
+      "tail": {
+        "success_rate": 0.6502884574439689,
+        "cost_per_success": 37.600151875051765,
+        "cost_per_request": 24.448134480133312
+      }
+    },
+    {
+      "policy": "shared_prior",
+      "label": "Thompson per domain, global prior (weight 2)",
+      "params": {
+        "k": 2
+      },
+      "all": {
+        "success_rate": 0.84785,
+        "cost_per_success": 29.249034036230505,
+        "cost_per_request": 24.791703333333334
+      },
+      "head": {
+        "success_rate": 0.8915779888800872,
+        "cost_per_success": 27.909637186887863,
+        "cost_per_request": 24.87382302684686
+      },
+      "tail": {
+        "success_rate": 0.7050266294604588,
+        "cost_per_success": 34.70376435031962,
+        "cost_per_request": 24.461336135749427
+      }
+    },
+    {
+      "policy": "shared_prior",
+      "label": "Thompson per domain, global prior (weight 5)",
+      "params": {
+        "k": 5
+      },
+      "all": {
+        "success_rate": 0.86409,
+        "cost_per_success": 28.236363539984797,
+        "cost_per_request": 24.38892333333333
+      },
+      "head": {
+        "success_rate": 0.898370448997518,
+        "cost_per_success": 27.31255873983192,
+        "cost_per_request": 24.519950346102416
+      },
+      "tail": {
+        "success_rate": 0.7520622137286344,
+        "cost_per_success": 31.592483939885888,
+        "cost_per_request": 23.75366981199157
+      }
+    },
+    {
+      "policy": "shared_prior",
+      "label": "Thompson per domain, global prior (weight 20)",
+      "params": {
+        "k": 20
+      },
+      "all": {
+        "success_rate": 0.86507,
+        "cost_per_success": 29.824819321920234,
+        "cost_per_request": 25.793709999999997
+      },
+      "head": {
+        "success_rate": 0.8933211698895942,
+        "cost_per_success": 28.955109320059144,
+        "cost_per_request": 25.85560767778743
+      },
+      "tail": {
+        "success_rate": 0.7733284702291152,
+        "cost_per_success": 32.71673274254848,
+        "cost_per_request": 25.298532488875274
+      }
+    },
+    {
+      "policy": "family_prior",
+      "label": "Thompson per domain, prior from its family (weight 5)",
+      "params": {
+        "k": 5
+      },
+      "all": {
+        "success_rate": 0.8897733333333333,
+        "cost_per_success": 27.80058657399051,
+        "cost_per_request": 24.7344
+      },
+      "head": {
+        "success_rate": 0.9055748263829457,
+        "cost_per_success": 27.381654180343144,
+        "cost_per_request": 24.787339374335655
+      },
+      "tail": {
+        "success_rate": 0.8430544396332607,
+        "cost_per_success": 28.62158681778964,
+        "cost_per_request": 24.127049469785042
+      }
+    },
+    {
+      "policy": "etc",
+      "label": "Explore then commit per domain (3/config)",
+      "params": {
+        "trials": 3
+      },
+      "all": {
+        "success_rate": 0.8190433333333333,
+        "cost_per_success": 27.003313385961796,
+        "cost_per_request": 22.12553
+      },
+      "head": {
+        "success_rate": 0.8881356985278354,
+        "cost_per_success": 26.573807958479875,
+        "cost_per_request": 23.608586290942412
+      },
+      "tail": {
+        "success_rate": 0.6329215104811222,
+        "cost_per_success": 18.91136028313519,
+        "cost_per_request": 11.967450006958195
+      }
+    },
+    {
+      "policy": "etc",
+      "label": "Explore then commit per domain (10/config)",
+      "params": {
+        "trials": 10
+      },
+      "all": {
+        "success_rate": 0.7728033333333333,
+        "cost_per_success": 26.579091606786,
+        "cost_per_request": 20.539383333333333
+      },
+      "head": {
+        "success_rate": 0.8441023641267116,
+        "cost_per_success": 28.455591112866916,
+        "cost_per_request": 24.018261263721012
+      },
+      "tail": {
+        "success_rate": 0.5812828051266379,
+        "cost_per_success": 17.206856408553858,
+        "cost_per_request": 10.0
+      }
+    },
+    {
+      "policy": "oracle",
+      "label": "Oracle: best config per domain",
+      "params": {},
+      "all": {
+        "success_rate": 0.92925,
+        "cost_per_success": 26.844898978448423,
+        "cost_per_request": 24.9525
+      },
+      "head": {
+        "success_rate": 0.9286806655702982,
+        "cost_per_success": 26.742755059743484,
+        "cost_per_request": 24.847439317378004
+      },
+      "tail": {
+        "success_rate": 0.9317166853338726,
+        "cost_per_success": 26.78558380940937,
+        "cost_per_request": 24.95561570459269
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "simulation": true,
+  "requests": 2000,
+  "seed": 7,
+  "shift_at": 1000,
+  "rates_before": [
+    0.9,
+    0.75,
+    0.6
+  ],
+  "rates_after": [
+    0.4,
+    0.75,
+    0.6
+  ],
+  "metric": "Cumulative expected reward gap to the best available arm at each request",
+  "results": [
+    {
+      "policy": "round_robin",
+      "successes": 1340,
+      "success_rate": 0.67,
+      "pseudo_regret": 316.35000000000093
+    },
+    {
+      "policy": "epsilon_greedy",
+      "successes": 1411,
+      "success_rate": 0.7055,
+      "pseudo_regret": 225.54999999999782
+    },
+    {
+      "policy": "thompson",
+      "successes": 1540,
+      "success_rate": 0.77,
+      "pseudo_regret": 90.90000000000019
+    }
+  ],
+  "thompson_windows": [
+    {
+      "first_request": 1,
+      "last_request": 1000,
+      "arm_pulls": {
+        "A": 847,
+        "B": 121,
+        "C": 32
+      }
+    },
+    {
+      "first_request": 1001,
+      "last_request": 1100,
+      "arm_pulls": {
+        "A": 50,
+        "B": 44,
+        "C": 6
+      }
+    },
+    {
+      "first_request": 1901,
+      "last_request": 2000,
+      "arm_pulls": {
+        "A": 3,
+        "B": 86,
+        "C": 11
+      }
+    }
+  ]
+}

@@ -1,0 +1,386 @@
+{
+  "simulation": true,
+  "environment": "adversarial",
+  "requests": 20000,
+  "seeds": 20,
+  "costs": [
+    4.0,
+    2.0,
+    1.0
+  ],
+  "base_rates": [
+    0.9,
+    0.75,
+    0.6
+  ],
+  "strength": 0.6,
+  "usage_memory": 0.01,
+  "results": [
+    {
+      "policy": "round_robin",
+      "label": "Round-robin",
+      "params": {},
+      "mean_success_rate": 0.603145,
+      "min_success_rate": 0.59805,
+      "max_success_rate": 0.60955,
+      "cost_per_success": 3.868851102651482,
+      "cost_per_request": 2.3334
+    },
+    {
+      "policy": "grid_search",
+      "label": "Explore then commit (10/arm)",
+      "params": {
+        "trials": 10
+      },
+      "mean_success_rate": 0.35094,
+      "min_success_rate": 0.30125,
+      "max_success_rate": 0.3677,
+      "cost_per_success": 10.130545475258508,
+      "cost_per_request": 3.5981
+    },
+    {
+      "policy": "grid_search",
+      "label": "Explore then commit (30/arm)",
+      "params": {
+        "trials": 30
+      },
+      "mean_success_rate": 0.354765,
+      "min_success_rate": 0.30185,
+      "max_success_rate": 0.3684,
+      "cost_per_success": 10.316882393383223,
+      "cost_per_request": 3.6938500000000003
+    },
+    {
+      "policy": "grid_search",
+      "label": "Explore then commit (100/arm)",
+      "params": {
+        "trials": 100
+      },
+      "mean_success_rate": 0.36343749999999997,
+      "min_success_rate": 0.3093,
+      "max_success_rate": 0.37015,
+      "cost_per_success": 10.633924873866988,
+      "cost_per_request": 3.8765
+    },
+    {
+      "policy": "grid_retune",
+      "label": "Periodic re-test every 100",
+      "params": {
+        "interval": 100
+      },
+      "mean_success_rate": 0.6072275,
+      "min_success_rate": 0.6032,
+      "max_success_rate": 0.6117,
+      "cost_per_success": 4.043659096299892,
+      "cost_per_request": 2.455375
+    },
+    {
+      "policy": "grid_retune",
+      "label": "Periodic re-test every 250",
+      "params": {
+        "interval": 250
+      },
+      "mean_success_rate": 0.5417325,
+      "min_success_rate": 0.53335,
+      "max_success_rate": 0.54715,
+      "cost_per_success": 5.112671893697401,
+      "cost_per_request": 2.7695999999999996
+    },
+    {
+      "policy": "grid_retune",
+      "label": "Periodic re-test every 1,000",
+      "params": {
+        "interval": 1000
+      },
+      "mean_success_rate": 0.389095,
+      "min_success_rate": 0.38225,
+      "max_success_rate": 0.3948,
+      "cost_per_success": 7.391917018259926,
+      "cost_per_request": 2.8762999999999996
+    },
+    {
+      "policy": "grid_retune",
+      "label": "Periodic re-test every 5,000",
+      "params": {
+        "interval": 5000
+      },
+      "mean_success_rate": 0.337655,
+      "min_success_rate": 0.32455,
+      "max_success_rate": 0.34705,
+      "cost_per_success": 8.591574503542262,
+      "cost_per_request": 2.902075
+    },
+    {
+      "policy": "grid_threshold",
+      "label": "Commit, re-search below 50%",
+      "params": {
+        "threshold": 0.5
+      },
+      "mean_success_rate": 0.575855,
+      "min_success_rate": 0.5721,
+      "max_success_rate": 0.57945,
+      "cost_per_success": 4.848764451637801,
+      "cost_per_request": 2.79217
+    },
+    {
+      "policy": "grid_threshold",
+      "label": "Commit, re-search below 60%",
+      "params": {
+        "threshold": 0.6
+      },
+      "mean_success_rate": 0.59156,
+      "min_success_rate": 0.5875,
+      "max_success_rate": 0.59735,
+      "cost_per_success": 4.560905227821195,
+      "cost_per_request": 2.698
+    },
+    {
+      "policy": "grid_threshold",
+      "label": "Commit, re-search below 70%",
+      "params": {
+        "threshold": 0.7
+      },
+      "mean_success_rate": 0.5963,
+      "min_success_rate": 0.5923,
+      "max_success_rate": 0.60105,
+      "cost_per_success": 4.45865564395869,
+      "cost_per_request": 2.6586600000000002
+    },
+    {
+      "policy": "epsilon_greedy",
+      "label": "Epsilon-greedy 0.05",
+      "params": {
+        "epsilon": 0.05
+      },
+      "mean_success_rate": 0.5130775,
+      "min_success_rate": 0.46605,
+      "max_success_rate": 0.5469,
+      "cost_per_success": 6.158091779286922,
+      "cost_per_request": 3.15233
+    },
+    {
+      "policy": "epsilon_greedy",
+      "label": "Epsilon-greedy 0.1",
+      "params": {
+        "epsilon": 0.1
+      },
+      "mean_success_rate": 0.536175,
+      "min_success_rate": 0.5136,
+      "max_success_rate": 0.54925,
+      "cost_per_success": 5.812244264777821,
+      "cost_per_request": 3.1153625000000003
+    },
+    {
+      "policy": "epsilon_greedy",
+      "label": "Epsilon-greedy 0.2",
+      "params": {
+        "epsilon": 0.2
+      },
+      "mean_success_rate": 0.5571550000000001,
+      "min_success_rate": 0.5469,
+      "max_success_rate": 0.56875,
+      "cost_per_success": 5.539003726067528,
+      "cost_per_request": 3.08578
+    },
+    {
+      "policy": "eg_decay",
+      "label": "Epsilon-greedy 0.1, forgetting 0.98",
+      "params": {
+        "decay": 0.98
+      },
+      "mean_success_rate": 0.573285,
+      "min_success_rate": 0.568,
+      "max_success_rate": 0.58,
+      "cost_per_success": 5.066460321185046,
+      "cost_per_request": 2.9044375
+    },
+    {
+      "policy": "eg_decay",
+      "label": "Epsilon-greedy 0.1, forgetting 0.99",
+      "params": {
+        "decay": 0.99
+      },
+      "mean_success_rate": 0.56375,
+      "min_success_rate": 0.55405,
+      "max_success_rate": 0.5713,
+      "cost_per_success": 5.256673772077703,
+      "cost_per_request": 2.9632975
+    },
+    {
+      "policy": "eg_decay",
+      "label": "Epsilon-greedy 0.1, forgetting 0.995",
+      "params": {
+        "decay": 0.995
+      },
+      "mean_success_rate": 0.554205,
+      "min_success_rate": 0.5481,
+      "max_success_rate": 0.561,
+      "cost_per_success": 5.41584853180916,
+      "cost_per_request": 3.0013625
+    },
+    {
+      "policy": "ucb1",
+      "label": "UCB1",
+      "params": {},
+      "mean_success_rate": 0.5772375000000001,
+      "min_success_rate": 0.5717,
+      "max_success_rate": 0.5843,
+      "cost_per_success": 5.198640744514166,
+      "cost_per_request": 3.0006575
+    },
+    {
+      "policy": "ucb_decay",
+      "label": "UCB, forgetting 0.98",
+      "params": {
+        "decay": 0.98
+      },
+      "mean_success_rate": 0.609525,
+      "min_success_rate": 0.60525,
+      "max_success_rate": 0.61445,
+      "cost_per_success": 4.212868932412263,
+      "cost_per_request": 2.5677825
+    },
+    {
+      "policy": "ucb_decay",
+      "label": "UCB, forgetting 0.99",
+      "params": {
+        "decay": 0.99
+      },
+      "mean_success_rate": 0.6081225,
+      "min_success_rate": 0.60265,
+      "max_success_rate": 0.6125,
+      "cost_per_success": 4.3034658162912836,
+      "cost_per_request": 2.6169675000000003
+    },
+    {
+      "policy": "ucb_decay",
+      "label": "UCB, forgetting 0.995",
+      "params": {
+        "decay": 0.995
+      },
+      "mean_success_rate": 0.6073275,
+      "min_success_rate": 0.60105,
+      "max_success_rate": 0.61275,
+      "cost_per_success": 4.393281415717985,
+      "cost_per_request": 2.6681075
+    },
+    {
+      "policy": "exp3",
+      "label": "EXP3 gamma 0.05",
+      "params": {
+        "gamma": 0.05
+      },
+      "mean_success_rate": 0.584855,
+      "min_success_rate": 0.57495,
+      "max_success_rate": 0.5932,
+      "cost_per_success": 5.241044927758641,
+      "cost_per_request": 3.0645475
+    },
+    {
+      "policy": "exp3",
+      "label": "EXP3 gamma 0.1",
+      "params": {
+        "gamma": 0.1
+      },
+      "mean_success_rate": 0.5810850000000001,
+      "min_success_rate": 0.57145,
+      "max_success_rate": 0.5914,
+      "cost_per_success": 5.264205053990436,
+      "cost_per_request": 3.0583175000000002
+    },
+    {
+      "policy": "exp3",
+      "label": "EXP3 gamma 0.2",
+      "params": {
+        "gamma": 0.2
+      },
+      "mean_success_rate": 0.57847,
+      "min_success_rate": 0.5681,
+      "max_success_rate": 0.5864,
+      "cost_per_success": 5.250805104668927,
+      "cost_per_request": 3.037045
+    },
+    {
+      "policy": "thompson",
+      "label": "Thompson, no forgetting",
+      "params": {},
+      "mean_success_rate": 0.5845425,
+      "min_success_rate": 0.57315,
+      "max_success_rate": 0.5939,
+      "cost_per_success": 5.306657634275809,
+      "cost_per_request": 3.1012975000000003
+    },
+    {
+      "policy": "thompson_decay",
+      "label": "Thompson, forgetting 0.9",
+      "params": {
+        "decay": 0.9
+      },
+      "mean_success_rate": 0.6084025,
+      "min_success_rate": 0.60325,
+      "max_success_rate": 0.6138,
+      "cost_per_success": 4.273751592588361,
+      "cost_per_request": 2.600075
+    },
+    {
+      "policy": "thompson_decay",
+      "label": "Thompson, forgetting 0.95",
+      "params": {
+        "decay": 0.95
+      },
+      "mean_success_rate": 0.6062325000000001,
+      "min_success_rate": 0.6016,
+      "max_success_rate": 0.6116,
+      "cost_per_success": 4.406968062550279,
+      "cost_per_request": 2.6716249999999997
+    },
+    {
+      "policy": "thompson_decay",
+      "label": "Thompson, forgetting 0.98",
+      "params": {
+        "decay": 0.98
+      },
+      "mean_success_rate": 0.6024475,
+      "min_success_rate": 0.59625,
+      "max_success_rate": 0.60715,
+      "cost_per_success": 4.57926810544455,
+      "cost_per_request": 2.7587099999999998
+    },
+    {
+      "policy": "thompson_decay",
+      "label": "Thompson, forgetting 0.99",
+      "params": {
+        "decay": 0.99
+      },
+      "mean_success_rate": 0.5981875000000001,
+      "min_success_rate": 0.59265,
+      "max_success_rate": 0.60335,
+      "cost_per_success": 4.7240480558318065,
+      "cost_per_request": 2.8257725000000002
+    },
+    {
+      "policy": "thompson_decay",
+      "label": "Thompson, forgetting 0.995",
+      "params": {
+        "decay": 0.995
+      },
+      "mean_success_rate": 0.595915,
+      "min_success_rate": 0.58895,
+      "max_success_rate": 0.6012,
+      "cost_per_success": 4.822825112583084,
+      "cost_per_request": 2.8738725
+    },
+    {
+      "policy": "thompson_decay",
+      "label": "Thompson, forgetting 0.999",
+      "params": {
+        "decay": 0.999
+      },
+      "mean_success_rate": 0.591495,
+      "min_success_rate": 0.5861,
+      "max_success_rate": 0.5971,
+      "cost_per_success": 5.035559891664056,
+      "cost_per_request": 2.9783325
+    }
+  ]
+}

@@ -1,0 +1,310 @@
+{
+  "simulation": true,
+  "requests": 2000,
+  "seeds": 50,
+  "rolling_window": 100,
+  "base_rates": [
+    0.9,
+    0.75,
+    0.6
+  ],
+  "adversarial": {
+    "strength": 0.6,
+    "usage_memory": 0.01
+  },
+  "knobs": {
+    "intercept": -0.5,
+    "fetch": {
+      "http": -1.5,
+      "tls": 1.2,
+      "browser": 0.6
+    },
+    "proxy": {
+      "datacenter": -1.0,
+      "resi-us": 1.0,
+      "resi-eu": 0.3,
+      "mobile": 1.2
+    },
+    "headers": {
+      "minimal": -0.5,
+      "consistent": 0.8,
+      "mismatched": -1.5
+    },
+    "tls_flag_penalty": 2.5,
+    "fetch_cost": {
+      "http": 1,
+      "tls": 2,
+      "browser": 20
+    },
+    "proxy_cost": {
+      "datacenter": 1,
+      "resi-us": 8,
+      "resi-eu": 8,
+      "mobile": 25
+    }
+  },
+  "results": {
+    "stationary": {
+      "round_robin": {
+        "mean_success_rate": 0.75074,
+        "min_success_rate": 0.7285,
+        "max_success_rate": 0.7735,
+        "mean_cost_per_success": 1.33221057360823
+      },
+      "grid_search": {
+        "mean_success_rate": 0.88416,
+        "min_success_rate": 0.7355,
+        "max_success_rate": 0.9085,
+        "mean_cost_per_success": 1.1331399647116418
+      },
+      "grid_retune": {
+        "mean_success_rate": 0.87509,
+        "min_success_rate": 0.806,
+        "max_success_rate": 0.9015,
+        "mean_cost_per_success": 1.1438691013578963
+      },
+      "epsilon_greedy": {
+        "mean_success_rate": 0.8802599999999999,
+        "min_success_rate": 0.816,
+        "max_success_rate": 0.8985,
+        "mean_cost_per_success": 1.136260351647887
+      },
+      "ucb1": {
+        "mean_success_rate": 0.8670100000000001,
+        "min_success_rate": 0.8535,
+        "max_success_rate": 0.886,
+        "mean_cost_per_success": 1.1534541230882702
+      },
+      "exp3": {
+        "mean_success_rate": 0.86214,
+        "min_success_rate": 0.8395,
+        "max_success_rate": 0.8825,
+        "mean_cost_per_success": 1.1601048700913545
+      },
+      "thompson": {
+        "mean_success_rate": 0.89333,
+        "min_success_rate": 0.843,
+        "max_success_rate": 0.912,
+        "mean_cost_per_success": 1.1195385417595332
+      },
+      "thompson_decay": {
+        "mean_success_rate": 0.88129,
+        "min_success_rate": 0.8635,
+        "max_success_rate": 0.9015,
+        "mean_cost_per_success": 1.1347837099595588
+      }
+    },
+    "shift": {
+      "round_robin": {
+        "mean_success_rate": 0.6660699999999999,
+        "min_success_rate": 0.6415,
+        "max_success_rate": 0.687,
+        "mean_cost_per_success": 1.5016630880482902
+      },
+      "grid_search": {
+        "mean_success_rate": 0.64866,
+        "min_success_rate": 0.623,
+        "max_success_rate": 0.7585,
+        "mean_cost_per_success": 1.5438933574464277
+      },
+      "grid_retune": {
+        "mean_success_rate": 0.79887,
+        "min_success_rate": 0.7255,
+        "max_success_rate": 0.829,
+        "mean_cost_per_success": 1.253067044840108
+      },
+      "epsilon_greedy": {
+        "mean_success_rate": 0.71134,
+        "min_success_rate": 0.649,
+        "max_success_rate": 0.778,
+        "mean_cost_per_success": 1.4083336124069603
+      },
+      "ucb1": {
+        "mean_success_rate": 0.7458499999999999,
+        "min_success_rate": 0.723,
+        "max_success_rate": 0.78,
+        "mean_cost_per_success": 1.341103135911974
+      },
+      "exp3": {
+        "mean_success_rate": 0.72955,
+        "min_success_rate": 0.628,
+        "max_success_rate": 0.792,
+        "mean_cost_per_success": 1.3741934297547582
+      },
+      "thompson": {
+        "mean_success_rate": 0.71497,
+        "min_success_rate": 0.6645,
+        "max_success_rate": 0.7615,
+        "mean_cost_per_success": 1.4001136546671649
+      },
+      "thompson_decay": {
+        "mean_success_rate": 0.78101,
+        "min_success_rate": 0.76,
+        "max_success_rate": 0.805,
+        "mean_cost_per_success": 1.2806228066836767
+      }
+    },
+    "drift": {
+      "round_robin": {
+        "mean_success_rate": 0.7078399999999999,
+        "min_success_rate": 0.6915,
+        "max_success_rate": 0.7285,
+        "mean_cost_per_success": 1.4129771043149975
+      },
+      "grid_search": {
+        "mean_success_rate": 0.64974,
+        "min_success_rate": 0.6245,
+        "max_success_rate": 0.7585,
+        "mean_cost_per_success": 1.5412845326802544
+      },
+      "grid_retune": {
+        "mean_success_rate": 0.78664,
+        "min_success_rate": 0.6385,
+        "max_success_rate": 0.8355,
+        "mean_cost_per_success": 1.2754857225939693
+      },
+      "epsilon_greedy": {
+        "mean_success_rate": 0.7326600000000001,
+        "min_success_rate": 0.6915,
+        "max_success_rate": 0.7775,
+        "mean_cost_per_success": 1.3662564734353768
+      },
+      "ucb1": {
+        "mean_success_rate": 0.7911199999999999,
+        "min_success_rate": 0.763,
+        "max_success_rate": 0.8125,
+        "mean_cost_per_success": 1.2642127863571324
+      },
+      "exp3": {
+        "mean_success_rate": 0.7493500000000001,
+        "min_success_rate": 0.6855,
+        "max_success_rate": 0.7945,
+        "mean_cost_per_success": 1.3356841144988614
+      },
+      "thompson": {
+        "mean_success_rate": 0.75786,
+        "min_success_rate": 0.6855,
+        "max_success_rate": 0.8035,
+        "mean_cost_per_success": 1.3211564602628527
+      },
+      "thompson_decay": {
+        "mean_success_rate": 0.8062600000000001,
+        "min_success_rate": 0.788,
+        "max_success_rate": 0.8285,
+        "mean_cost_per_success": 1.2404779636803456
+      }
+    },
+    "adversarial": {
+      "round_robin": {
+        "mean_success_rate": 0.60266,
+        "min_success_rate": 0.579,
+        "max_success_rate": 0.626,
+        "mean_cost_per_success": 1.6598841364305188
+      },
+      "grid_search": {
+        "mean_success_rate": 0.38177,
+        "min_success_rate": 0.3125,
+        "max_success_rate": 0.4135,
+        "mean_cost_per_success": 2.632056759227772
+      },
+      "grid_retune": {
+        "mean_success_rate": 0.38756999999999997,
+        "min_success_rate": 0.3505,
+        "max_success_rate": 0.4125,
+        "mean_cost_per_success": 2.584034462634642
+      },
+      "epsilon_greedy": {
+        "mean_success_rate": 0.54243,
+        "min_success_rate": 0.4835,
+        "max_success_rate": 0.5855,
+        "mean_cost_per_success": 1.8464254349967444
+      },
+      "ucb1": {
+        "mean_success_rate": 0.59838,
+        "min_success_rate": 0.5745,
+        "max_success_rate": 0.628,
+        "mean_cost_per_success": 1.6717532124836263
+      },
+      "exp3": {
+        "mean_success_rate": 0.58976,
+        "min_success_rate": 0.56,
+        "max_success_rate": 0.616,
+        "mean_cost_per_success": 1.6963428519635562
+      },
+      "thompson": {
+        "mean_success_rate": 0.58428,
+        "min_success_rate": 0.557,
+        "max_success_rate": 0.6145,
+        "mean_cost_per_success": 1.712372816319215
+      },
+      "thompson_decay": {
+        "mean_success_rate": 0.59573,
+        "min_success_rate": 0.573,
+        "max_success_rate": 0.6225,
+        "mean_cost_per_success": 1.6793322773430241
+      }
+    },
+    "knobs": {
+      "round_robin": {
+        "mean_success_rate": 0.36583999999999994,
+        "min_success_rate": 0.3475,
+        "max_success_rate": 0.384,
+        "mean_cost_per_success": 49.46327851053885
+      },
+      "grid_search": {
+        "mean_success_rate": 0.61995,
+        "min_success_rate": 0.3275,
+        "max_success_rate": 0.812,
+        "mean_cost_per_success": 29.849406547834327
+      },
+      "grid_retune": {
+        "mean_success_rate": 0.67214,
+        "min_success_rate": 0.5285,
+        "max_success_rate": 0.715,
+        "mean_cost_per_success": 34.788134449609224
+      },
+      "random_search": {
+        "mean_success_rate": 0.62743,
+        "min_success_rate": 0.2985,
+        "max_success_rate": 0.88,
+        "mean_cost_per_success": 33.82181555164187
+      },
+      "epsilon_greedy": {
+        "mean_success_rate": 0.7951600000000001,
+        "min_success_rate": 0.6825,
+        "max_success_rate": 0.8405,
+        "mean_cost_per_success": 33.95288795873909
+      },
+      "ucb1": {
+        "mean_success_rate": 0.6434000000000001,
+        "min_success_rate": 0.6245,
+        "max_success_rate": 0.668,
+        "mean_cost_per_success": 39.155372875643536
+      },
+      "exp3": {
+        "mean_success_rate": 0.52917,
+        "min_success_rate": 0.4845,
+        "max_success_rate": 0.577,
+        "mean_cost_per_success": 42.21365720508874
+      },
+      "thompson": {
+        "mean_success_rate": 0.81609,
+        "min_success_rate": 0.788,
+        "max_success_rate": 0.8475,
+        "mean_cost_per_success": 35.22462181514638
+      },
+      "thompson_decay": {
+        "mean_success_rate": 0.70872,
+        "min_success_rate": 0.674,
+        "max_success_rate": 0.7445,
+        "mean_cost_per_success": 36.45626702999806
+      },
+      "thompson_pruned": {
+        "mean_success_rate": 0.83649,
+        "min_success_rate": 0.8085,
+        "max_success_rate": 0.86,
+        "mean_cost_per_success": 35.348685926587436
+      }
+    }
+  }
+}
