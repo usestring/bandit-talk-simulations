@@ -80,20 +80,18 @@ def simulate(name, params, n, seed, window):
     outcomes, choices = random.Random(seed), random.Random(seed + 1_000_003)
     env = be.Environment("adversarial", n)
     policy = Policy(name, 3, n, choices, **params)
-    wins, cost, roll = 0, 0.0, []
-    recent = []
+    arms, rewards = [], []
     for t in range(n):
         arm = policy.select(t)
         reward = int(outcomes.random() < env.rates(t)[arm])
         env.observe(arm)
         policy.update(arm, reward)
-        wins += reward
-        cost += COST[arm]
-        recent.append(reward)
-        if len(recent) > window:
-            recent.pop(0)
-        roll.append(sum(recent) / len(recent))
-    return wins, cost, roll
+        arms.append(arm)
+        rewards.append(reward)
+    roll = be.rolling(rewards, window)
+    spend = be.rolling([COST[a] for a in arms], window)
+    wins, cost = sum(rewards), sum(COST[a] for a in arms)
+    return wins, cost, roll, spend
 
 
 def main():
@@ -104,17 +102,20 @@ def main():
     parser.add_argument("--output-dir", type=Path,
                         default=Path(__file__).resolve().parent / "results" / "adversarial-long")
     parser.add_argument("--plot", action="store_true")
+    parser.add_argument("--gif", action="store_true", help="animated success and cost per success")
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    rows, curves = [], {}
+    rows, curves, spends = [], {}, {}
     for name, label, params in SETTINGS:
-        rates, per_ok, per_req, curve = [], [], [], [0.0] * args.requests
+        rates, per_ok, per_req = [], [], []
+        curve, spend_curve = [0.0] * args.requests, [0.0] * args.requests
         for seed in range(args.seeds):
-            wins, cost, roll = simulate(name, params, args.requests, seed, args.window)
+            wins, cost, roll, spend = simulate(name, params, args.requests, seed, args.window)
             rates.append(wins / args.requests)
             per_ok.append(cost / max(1, wins))
             per_req.append(cost / args.requests)
             curve = [c + r / args.seeds for c, r in zip(curve, roll)]
+            spend_curve = [c + r / args.seeds for c, r in zip(spend_curve, spend)]
         row = {"policy": name, "label": label, "params": params,
                "mean_success_rate": sum(rates) / len(rates),
                "min_success_rate": min(rates), "max_success_rate": max(rates),
@@ -122,20 +123,33 @@ def main():
                "cost_per_request": sum(per_req) / len(per_req)}
         rows.append(row)
         curves[label] = curve
+        spends[label] = [c / max(1e-9, r) for c, r in zip(spend_curve, curve)]
         print(f"{label:34s} {row['mean_success_rate']:6.1%} {row['cost_per_success']:6.2f} {row['cost_per_request']:6.2f}")
     summary = {"simulation": True, "environment": "adversarial", "requests": args.requests,
                "seeds": args.seeds, "costs": COST, "base_rates": be.BASE,
                "strength": be.ADV_STRENGTH, "usage_memory": be.ADV_MEMORY, "results": rows}
     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    shown = {"Round-robin": "#9aa0a6", "Explore then commit (30/arm)": "#d93025",
+             "Periodic re-test every 1,000": "#f28b82", "Periodic re-test every 100": "#e37400",
+             "UCB, forgetting 0.98": "#1a73e8", "Thompson, no forgetting": "#a142f4",
+             "Thompson, forgetting 0.9": "#188038"}
+    if args.gif:
+        panels = [
+            {"title": f"Reactive site, {args.requests:,} requests x {args.seeds} seeds",
+             "ylabel": f"Success rate (rolling {args.window})", "ylim": (0.2, 0.8),
+             "series": [(label, color, curves[label]) for label, color in shown.items()]},
+            {"title": "Cost per success (illustrative: A=4, B=2, C=1)",
+             "ylabel": f"Cost per success (rolling {args.window})", "ylim": (0, 14),
+             "series": [(label, color, spends[label]) for label, color in shown.items()]},
+        ]
+        be.animate_lines(args.output_dir / "rolling.gif", panels, args.requests)
     if args.plot:
         import matplotlib
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
-        shown = ["Round-robin", "Explore then commit (30/arm)", "Periodic re-test every 1,000",
-                 "Periodic re-test every 100", "Thompson, no forgetting", "Thompson, forgetting 0.99"]
         fig, ax = plt.subplots(figsize=(12, 6))
-        for label in shown:
-            ax.plot(curves[label], label=label, linewidth=2)
+        for label, color in shown.items():
+            ax.plot(curves[label], label=label, color=color, linewidth=2)
         ax.set_xlabel("Request")
         ax.set_ylabel(f"Success rate (rolling {args.window})")
         ax.set_ylim(0, 1)

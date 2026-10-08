@@ -36,10 +36,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-plot.txt
 python bandit_environments.py --plot --gif
-python adversarial_long.py --plot
+python adversarial_long.py --plot --gif
+python many_sites.py --gif
 ```
 
-`bandit_environments.py --plot --gif` writes five PNG charts and five looping GIFs. Every environment chart labels its results as synthetic.
+`bandit_environments.py --plot --gif` writes five PNG charts and six looping GIFs, including a success-versus-cost view for the knob experiment. The other scripts animate the long reactive-site experiment and the many-sites experiment. The animations hold their final frame for two seconds before looping. Every animation labels its results as synthetic.
 
 ## Experiments
 

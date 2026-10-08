@@ -108,12 +108,16 @@ def main():
     parser.add_argument("--domains", type=int, default=500)
     parser.add_argument("--requests", type=int, default=30000)
     parser.add_argument("--seeds", type=int, default=10)
+    parser.add_argument("--window", type=int, default=1000)
+    parser.add_argument("--gif", action="store_true", help="animated success and cost per success")
     parser.add_argument("--output-dir", type=Path,
                         default=Path(__file__).resolve().parent / "results" / "many-sites")
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     groups = ("all", "head", "tail")
     totals = {label: {g: [] for g in groups} for _, label, _ in SETTINGS}
+    roll = {label: [0.0] * args.requests for _, label, _ in SETTINGS}
+    spend = {label: [0.0] * args.requests for _, label, _ in SETTINGS}
     splits = []
     for seed in range(args.seeds):
         world = random.Random(seed)
@@ -130,6 +134,11 @@ def main():
             outcomes = simulate(name, params, domains, stream, random.Random(seed + 7_000_003))
             for g in groups:
                 totals[label][g].append(summarize(outcomes, keep[g]))
+            if args.gif:
+                for i, r in enumerate(be.rolling([ok for _, ok, _ in outcomes], args.window)):
+                    roll[label][i] += r / args.seeds
+                for i, r in enumerate(be.rolling([cost for _, _, cost in outcomes], args.window)):
+                    spend[label][i] += r / args.seeds
     rows = []
     for name, label, params in SETTINGS:
         row = {"policy": name, "label": label, "params": params}
@@ -151,6 +160,25 @@ def main():
                "head_domains": n_head, "tail_domains": n_tail, "tail_traffic_share": tail_traffic,
                "results": rows}
     (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    if args.gif:
+        shown = {"One shared Thompson, ignores domain": "#9aa0a6",
+                 "Thompson per domain, starts from scratch": "#d93025",
+                 "Thompson per domain, global prior (weight 5)": "#1a73e8",
+                 "Thompson per domain, prior from its family (weight 5)": "#188038",
+                 "Explore then commit per domain (3/config)": "#e37400"}
+        oracle = "Oracle: best config per domain"
+        panels = [
+            {"title": f"{args.domains} sites, {args.requests:,} requests x {args.seeds} seeds",
+             "ylabel": f"Success rate (rolling {args.window:,})", "ylim": (0.5, 1.0),
+             "ref": ("Oracle: best config per site", roll[oracle]),
+             "series": [(label, color, roll[label]) for label, color in shown.items()]},
+            {"title": "Cost per success (illustrative units)",
+             "ylabel": f"Cost per success (rolling {args.window:,})", "ylim": (0, 50),
+             "ref": ("Oracle", [c / r for c, r in zip(spend[oracle], roll[oracle])]),
+             "series": [(label, color, [c / max(1e-9, r) for c, r in zip(spend[label], roll[label])])
+                        for label, color in shown.items()]},
+        ]
+        be.animate_lines(args.output_dir / "learning.gif", panels, args.requests)
 
 
 if __name__ == "__main__":
